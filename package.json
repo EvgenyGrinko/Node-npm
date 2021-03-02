@@ -1,0 +1,12 @@
+{
+    "name": "project-name",
+    "version": "1.0.0",
+    "author": "Evgeny Grinko",
+    "description": "Informative project description",
+    "keywords": ["study", "Node", "package.json", "freecodecamp"],
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.14.0",
+        "moment": "~2.10.2"
+    }
+}
