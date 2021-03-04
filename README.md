@@ -80,3 +80,38 @@ app.use(path, middlewareFunction);
 `path` argument is optional, if it doesn't provided, the middleware will be executed for all requests.
 
 - To get access to environment variables from `.env` file in the Node exists a global object `process.env`. By convention, variables are consist of words in upper case, separated with an underscore, placed on separate lines and souldn't have any whitespaces around equal sign: `VAR_NAME=value`. The `.env` is a shell file, so you don’t need to wrap names or values in quotes.
+
+### Middleware functions
+
+Generally, it's functions that take 3 arguments: the request object, the response object, and the next function in the application’s request-response cycle. These functions execute some code that can have side effects on the app, and usually add information to the request or response objects. They can also end the cycle by sending a response when some condition is met. If they don’t send the response when they are done, they start the execution of the next function in the stack. This triggers calling the 3rd argument, `next()`.
+
+```js
+function(req, res, next) {
+  console.log("I'm a middleware...");
+  next();
+}
+```
+
+If you'll mount this function on a route and the request will match this route, the function will display the string "I'm middleware..." and then it executes the next function in the stack. **`Remember`** to call `next()` when you are done, or your server will be stuck forever. <br/>
+`Note:` from the request object you can get such info as:
+
+- request method (GET, POST, etc.) with **`req.method`**
+- relative request path with **`req.path`**
+- IP the request comes from with **`req.ip`**
+
+Middleware can be mounted at a specific route `app.METHOD(path, middlewareFunction)` or can be chained inside route, by adding multiple, separated by commas:
+
+```js
+app.get(
+  "/user",
+  function (req, res, next) {
+    req.user = getTheUserSync(); // Hypothetical synchronous operation
+    next();
+  },
+  function (req, res) {
+    res.send(req.user);
+  }
+);
+```
+
+Chaining middleware allows to split the server operations into smaller units which leads to better structure and gives the opportunity to reuse code. Also, we can perform some validation on the data.
