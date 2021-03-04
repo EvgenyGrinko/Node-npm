@@ -22,6 +22,8 @@ app.get('/now',
     (req, res) => res.json({ time: req.time })
 );
 
+app.get('/:word/echo', (req, res) => res.json({echo: req.params.word}));
+
 app.get('/', (req, res) => res.sendFile(__dirname + '/views/index.html'));
 app.get('/', (req, res) => res.send('Hello'));//Never reached
 

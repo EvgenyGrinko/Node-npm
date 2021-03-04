@@ -81,7 +81,7 @@ app.use(path, middlewareFunction);
 
 - To get access to environment variables from `.env` file in the Node exists a global object `process.env`. By convention, variables are consist of words in upper case, separated with an underscore, placed on separate lines and souldn't have any whitespaces around equal sign: `VAR_NAME=value`. The `.env` is a shell file, so you don’t need to wrap names or values in quotes.
 
-### Middleware functions
+## Middleware functions
 
 Generally, it's functions that take 3 arguments: the request object, the response object, and the next function in the application’s request-response cycle. These functions execute some code that can have side effects on the app, and usually add information to the request or response objects. They can also end the cycle by sending a response when some condition is met. If they don’t send the response when they are done, they start the execution of the next function in the stack. This triggers calling the 3rd argument, `next()`.
 
@@ -115,3 +115,12 @@ app.get(
 ```
 
 Chaining middleware allows to split the server operations into smaller units which leads to better structure and gives the opportunity to reuse code. Also, we can perform some validation on the data.
+
+## Route parameters
+Route parameters are named segments of the URL, delimeted by slashes (/). Each value captures the value of the part of the URL which matches its position. The captured values can be found in the __`req.params`__ object.
+```js
+route_path: '/user/:userId/book/:bookId'
+actual_request_URL: '/user/546/book/6754'
+req.params: {userId: '546', bookId: '6754'}
+```
+Route parameters allows users to communicate with the server, specifing what information they needed (e.g. from the database)
