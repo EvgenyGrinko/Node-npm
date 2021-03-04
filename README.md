@@ -117,10 +117,25 @@ app.get(
 Chaining middleware allows to split the server operations into smaller units which leads to better structure and gives the opportunity to reuse code. Also, we can perform some validation on the data.
 
 ## Route parameters
-Route parameters are named segments of the URL, delimeted by slashes (/). Each value captures the value of the part of the URL which matches its position. The captured values can be found in the __`req.params`__ object.
+
+Route parameters are named segments of the URL, delimeted by slashes (/). Each value captures the value of the part of the URL which matches its position. The captured values can be found in the **`req.params`** object.
+
 ```js
 route_path: '/user/:userId/book/:bookId'
 actual_request_URL: '/user/546/book/6754'
 req.params: {userId: '546', bookId: '6754'}
 ```
-Route parameters allows users to communicate with the server, specifing what information they needed (e.g. from the database)
+
+Route parameters allows users to communicate with the server, specifing what information they needed (e.g. from the database).
+
+## Query parameters
+
+Query parameters are created after the parsing of the query string from the route path. The query string is delimeted by a question mark (?), and includes `field=value` pairs. Each couple separated by an ampersand (&). Express can parse the data from the query string, and populate the object **`req.query`**.
+
+```js
+route_path: '/library'
+actual_request_URL: '/library?userId=546&bookId=6754'
+req.query: {userId: '546', bookId: '6754'}
+```
+
+`Note:` some characters, like the percent (%), cannot be in URLs and have to be encoded in a different format before you can send them.

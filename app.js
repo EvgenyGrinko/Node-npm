@@ -21,9 +21,13 @@ app.get('/now',
     },
     (req, res) => res.json({ time: req.time })
 );
-
-app.get('/:word/echo', (req, res) => res.json({echo: req.params.word}));
-
+//Route parameters
+app.get('/:word/echo', (req, res) => res.json({ echo: req.params.word }));
+//Query parameters
+//Request example: http://localhost:3000/name?first=Jo&last=Bro
+app.get('/name',
+    (req, res) => res.json({ name: `${req.query.first} ${req.query.last}` })
+);
 app.get('/', (req, res) => res.sendFile(__dirname + '/views/index.html'));
 app.get('/', (req, res) => res.send('Hello'));//Never reached
 
