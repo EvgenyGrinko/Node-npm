@@ -130,7 +130,7 @@ Route parameters allows users to communicate with the server, specifing what inf
 
 ## Query parameters
 
-Query parameters are created after the parsing of the query string from the route path. The query string is delimeted by a question mark (?), and includes `field=value` pairs. Each couple separated by an ampersand (&). Express can parse the data from the query string, and populate the object **`req.query`**.
+Query parameters are created after the parsing of the `query string` from the route path. The query string is delimeted by a question mark (?), and includes `field=value` pairs. Each couple separated by an ampersand (&). Express can parse the data from the query string, and populate the object **`req.query`**.
 
 ```js
 route_path: '/library'
@@ -139,3 +139,102 @@ req.query: {userId: '546', bookId: '6754'}
 ```
 
 `Note:` some characters, like the percent (%), cannot be in URLs and have to be encoded in a different format before you can send them.
+
+## POST request
+In REST convention, POST is used to send data to create new items in the database. In this kind of requests, the data is send in the request body. The body is a part of the HTTP request, also called the payload. By default, HTML forms encoded the body like the `query string` and the type of encoding is `application/x-www-form-urlencoded`. You can find it in the Headers section of the request:
+```js
+POST /path/subpath HTTP/1.0
+From: john@example.com
+User-Agent: someBrowser/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 20
+
+name=John+Doe&age=25
+```
+ With Ajax, you can also use JSON to handle data having a more complex structure. There is also another type of encoding: `multipart/form-data`. This one is used to upload binary files.
+
+ To parse the data coming from POST requests we need some middleware. The popular one is the `body-parser` package. This package allows you to use a series of middleware, which can decode data in different formats. The middleware to handle `urlencoded` data is returned by `bodyParser.urlencoded({extended: false})`.
+ ```js
+ app.use(bodyParser.urlencoded({extended: false}))
+```
+Now, with POST request in the __`req.body`__ object you can get sended parameters:
+```js
+app.post('/name', (req, res) => res.json({ name: `${req.body.first} ${req.body.last}` }))
+```
+`Note`: `extended=false` is a configuration option that tells the parser to use the classic encoding. When using it, values can be only strings or arrays.
+<hr>
+
+## Summarize on HTTP methods
+By convention there is a correspondence between the http verb, and the operation you are going to execute on the server. The conventional mapping is:
+
+* __GET__ - Read an existing resource without modifying it,
+* __POST__ - Create a new resource using the information sent with the request,
+* __PUT__ or __PATCH__ (sometimes __POST__) - Update a resource using the data sent:
+1. __PUT__ - replaces all current representations of the target resource with the request payload.
+2. __PATCH__ - to apply partial modifications to a resource.
+* __DELETE__ - Delete a resource.
+
+Except from __GET__, all the other methods listed above can have a payload (i.e. the data into the request body). The `body-parser` middleware works with these methods as well.
+
+There are also other methods which are used to negotiate a connection with the server (these requests don't have a body):
+
+* __HEAD__ method asks for a response identical to that of a __GET__ request, but without the response body.
+For example, if a URL might produce a large download, a HEAD request could read its `Content-Length` header to check the filesize without actually downloading the file.
+
+* __CONNECT__  method starts two-way communications with the requested resource. It can be used to open a tunnel.
+(e.g., the __CONNECT__ method can be used to access websites that use SSL (HTTPS) (Secure Sockets Layer, has been superseded by the Transport Layer Security (TLS) protocol). The client asks an HTTP Proxy server to tunnel the TCP connection to the desired destination. The server then proceeds to make the connection on behalf of the client. Once the connection has been established by the server, the Proxy server continues to proxy the TCP stream to and from the client. Some proxy servers might need authority to create a tunnel and requires the Proxy-Authorization header.)
+
+* __TRACE__ method performs a message loop-back test along the path to the target resource, providing a useful debugging mechanism.
+The final recipient of the request should reflect the message received, excluding some fields described below, back to the client as the message body of a 200 (OK) response with a Content-Type of message/http. The final recipient is either the origin server or the first server to receive a Max-Forwards value of 0 in the request.
+
+* __OPTIONS__ method is used to describe the communication options for the target resource. 
+
+1. For instance, to find out which request methods a server supports, one can use the `curl` command-line program to issue an OPTIONS request:
+```http
+curl -X OPTIONS https://example.org -i
+```
+The response then contains an __Allow__ header that holds the allowed methods:
+```http
+HTTP/1.1 204 No Content
+Allow: OPTIONS, GET, HEAD, POST
+Cache-Control: max-age=604800
+Date: Thu, 13 Oct 2016 11:45:00 GMT
+Server: EOS (lax004/2813)
+```
+2. In CORS, a preflight request is sent with the __OPTIONS__ method so that the server can respond if it is acceptable to send the request. In this example, we will request permission for these parameters:
+
+* `The Access-Control-Request-Method` header sent in the preflight request tells the server that when the actual request is sent, it will have a __POST__ request method.
+* `The Access-Control-Request-Headers` header tells the server that when the actual request is sent, it will have the `X-PINGOTHER` and `Content-Type` headers.
+```http
+OPTIONS /resources/post-here/ HTTP/1.1
+Host: bar.example
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Connection: keep-alive
+Origin: https://foo.example
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: X-PINGOTHER, Content-Type
+```
+
+The server now can respond if it will accept a request under these circumstances. In this example, the server response says that:
+
+`Access-Control-Allow-Origin`: the https://foo.example origin is permitted to request the `bar.example/resources/post-here/` URL via the following:
+
+`Access-Control-Allow-Methods`: POST, GET, and OPTIONS are permitted methods for the URL. (This header is similar to the `Allow` response header, but used only for __CORS__.)
+
+`Access-Control-Allow-Headers`: Any script inspecting the response is permitted to read the values of the `X-PINGOTHER` and `Content-Type` headers.
+`Access-Control-Max-Age`: The above permissions may be cached for 86,400 seconds (1 day).
+```http
+HTTP/1.1 204 No Content
+Date: Mon, 01 Dec 2008 01:15:39 GMT
+Server: Apache/2.0.61 (Unix)
+Access-Control-Allow-Origin: https://foo.example
+Access-Control-Allow-Methods: POST, GET, OPTIONS
+Access-Control-Allow-Headers: X-PINGOTHER, Content-Type
+Access-Control-Max-Age: 86400
+Vary: Accept-Encoding, Origin
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+```
+<hr>
