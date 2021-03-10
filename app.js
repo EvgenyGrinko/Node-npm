@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 const port = 3000;
 
@@ -9,6 +10,7 @@ const logger = (req, res, next) => {
 }
 app.use(logger);//when you don't pass the first argument as a 'path', the middleware will be applyed for all requests
 app.use('/public', express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/json', (req, res) => process.env.MESSAGE_STYLE === 'uppercase'
     ? res.json({ key: 'DATA' })
@@ -31,4 +33,7 @@ app.get('/name',
 app.get('/', (req, res) => res.sendFile(__dirname + '/views/index.html'));
 app.get('/', (req, res) => res.send('Hello'));//Never reached
 
+//On submit form we're redirected to the route http://localhost:3000/name?first=first+you+typed&last=whatYouTiped
+//body-parser middleware parses from the urlencoded route string query params and add them to the "req.query" object
+app.post('/name', (req, res) => res.json({ name: `${req.body.first} ${req.body.last}` }))
 app.listen(port, () => console.log(`Server is listening on port ${port}`));
